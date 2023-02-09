@@ -178,7 +178,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 losses = []
 
 # let's put that in a loop so that we can see the optimization progress
-for epoch in range(100):
+for epoch in range(200):
 
     y = model(data)
     loss = (y - target).pow(2).sum()*0.5
