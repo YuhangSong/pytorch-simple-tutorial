@@ -1,6 +1,8 @@
 # this is a tutorial for understanding pytorch
 import matplotlib.pyplot as plt
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 # let's say we have input x
 x = torch.Tensor([2])
@@ -136,3 +138,60 @@ plt.plot(ws)
 plt.show()
 
 # additionally, there are many options for optimizer than just SGD (gradient descent), which you can use with minimal effort
+
+# so far you should say pytorch (auto-differentiation) is not just for training neural networks, the concept of auto-differentiation is very general
+# you can use it for other optimization purposes
+
+# a comment here, I am very attached to a concept: simple thing works best (contrary to the common practice in research)
+# first order gradient is the simplest thing that it works in a wide range of applications, you can imagine there are many
+# second order optimization methods, which might not work as widely as first order optimization
+
+# now let's go back to neural networks
+
+# so training neural networks is nothing more than just make the w we were usign a complex network
+
+# let's say we have a simple network we want to optimize (replacing the single w we optmized before)
+model = nn.Sequential(
+    nn.Linear(2, 32),
+    nn.ReLU(),
+    nn.Linear(32, 1),
+)
+
+# then let's create a xor dataset
+data = torch.Tensor([
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+])
+
+target = torch.Tensor([
+    [1],
+    [-1],
+    [-1],
+    [1],
+])
+
+# let's create a optimizer
+optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
+
+losses = []
+
+# let's put that in a loop so that we can see the optimization progress
+for epoch in range(100):
+
+    y = model(data)
+    loss = (y - target).pow(2).sum()*0.5
+
+    optimizer.zero_grad()
+
+    loss.backward()
+
+    optimizer.step()
+
+    print(f"epoch {epoch}: loss = {loss.data}")
+    losses.append(loss.data.item())
+
+# let's plot loss
+plt.plot(losses)
+plt.show()
