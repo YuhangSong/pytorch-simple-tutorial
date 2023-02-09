@@ -187,6 +187,11 @@ for epoch in range(200):
 
     loss.backward()
 
+    # if you want to see the gradient of the first layer
+    # print(model[0].weight.grad)
+    # or the gradient of the bias of the first layer
+    # print(model[0].bias.grad)
+
     optimizer.step()
 
     print(f"epoch {epoch}: loss = {loss.data}")
