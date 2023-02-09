@@ -60,13 +60,13 @@ w.data = w.data - 0.05 * w.grad
 ws = []
 losses = []
 
+# let's reset w first
+w = torch.Tensor([3])
+w.requires_grad = True
+
 for epoch in range(20):
     y = x*w
     loss = (y - 4).pow(2)*0.5
-
-    # before backward, we need to zero out the gradient
-    w.grad.zero_()
-    # if you don't zero out the gradient, the gradient will accumulate
 
     loss.backward()
 
@@ -78,9 +78,61 @@ for epoch in range(20):
     ws.append(w.data.item())
     losses.append(loss.data.item())
 
+    # before going forward to the next loop, we need to zero out the gradient
+    w.grad.zero_()
+    # if you don't zero out the gradient, the gradient will accumulate
+
 # let's plot loss and w
 plt.plot(losses)
 plt.show()
 
 plt.plot(ws)
 plt.show()
+
+# so now you see, you can really code up a very complex process of information processing and define a loss function in the end
+# and optmized it with minimal effort
+
+# this is the whole core concept of auto-differentiation
+
+# pytorch makes the above process even more packed, so for now you still manually do gradient descent update on w: w.data = w.data - 0.05 * w.grad
+# this can be packed into a optimizer
+
+# let's reset w first
+w = torch.Tensor([3])
+w.requires_grad = True
+
+# let's create an optimizer
+optimizer = torch.optim.SGD([w], lr=0.05)
+
+# let's put that in a loop so that we can see the optimization progress
+for epoch in range(20):
+    y = x*w
+    loss = (y - 4).pow(2)*0.5
+
+    # before backward, we need to zero out the gradient
+    # instead of do w.grad.zero_() for all the parameters, we can do optimizer.zero_grad() which will do it for all the parameters
+    optimizer.zero_grad()
+    # if you don't zero out the gradient, the gradient will accumulate
+
+    loss.backward()
+
+    # instead of do w.data = w.data - 0.05 * w.grad
+    # now you can do optimizer step
+    optimizer.step()
+
+    print(f"epoch {epoch}: w = {w.data}, loss = {loss.data}")
+
+    # let's save the w and loss for plotting
+    ws.append(w.data.item())
+    losses.append(loss.data.item())
+
+# let's plot loss and w
+# I intentionally keep the list uncleaned so that you can see there are no difference between the two
+# but just easier to code with optimizer
+plt.plot(losses)
+plt.show()
+
+plt.plot(ws)
+plt.show()
+
+# additionally, there are many options for optimizer than just SGD (gradient descent), which you can use with minimal effort
